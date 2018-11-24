@@ -5,14 +5,16 @@
 #define WIFI_PASSWORD "mann!heim-06"
 #define FIREBASE_DB_URL "homeespautomation.firebaseio.com"
 #define FIREBASE_DB_SECRET_KEY "PTMceNXyvLk3m5OFFSfz02SPxkyof50AE0nFFUE4"
-
+#define RelaisPin 0
+#define TasterPin D1
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
-  //pinMode(D1, OUTPUT);
-  //pinMode(D2, OUTPUT);
+  pinMode(0, OUTPUT);
+  //pinMode(TasterPin,INPUT_PULLUP);
+  
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -48,13 +50,18 @@ void loop() {
       String data = event.getString("data");
       Serial.print(path);
       Serial.print(path);
+      
       if (path.equals("/fan/value")) {
         if (data.equals("off")) {
           Serial.println("fan off");
-          //digitalWrite(D1, HIGH);
+          digitalWrite(RelaisPin,0);
+          byte close[]={0xA0,0x01,0x01,0xA2};
+          Serial.write(close,sizeof(close));
         } else {
           Serial.println("fan on");
-          //digitalWrite(D1, LOW);
+          digitalWrite(RelaisPin,1);
+          byte open[]={0xA0,0x01,0x00,0xA1};
+          Serial.write(open,sizeof(open));
         }
       } else if (path.equals("/light/value")) {
         if (data.equals("off")) {
